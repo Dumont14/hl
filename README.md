@@ -22,7 +22,59 @@ AI session → hl snap → decisions saved → hl resume → full context restor
 
 A **decision** is any choice that changes the direction of the system and persists across steps.
 
-HL captures those decisions, stores them locally in SQLite, and injects them automatically into your next session.
+HL captures those decisions, stores them locally in SQLite, and makes them available for your next session.
+
+---
+
+## What it feels like
+
+**Without HL:**
+You reopen a project after 4 days and spend 10 minutes reading old threads, grepping through code, trying to remember why you made that call.
+
+**With HL:**
+
+```
+$ hl resume
+```
+
+```
+Project State  (3 decisions)
+
+◆  Use SQLite as local database — no external infra in MVP       22 Mar
+   Avoids cloud dependency, ships faster, easy to migrate later
+
+◎  Skip OAuth in v1 — email-only authentication                  22 Mar
+   OAuth adds 2–3 days of complexity before validation
+
+→  CLI-first interface before any web UI                         22 Mar
+   Target audience lives in terminal. Validates core value faster.
+```
+
+In 10 seconds you know exactly where you were. No reconstruction. No archaeology.
+
+---
+
+## Example session
+
+```
+$ hl snap
+
+  Scanning session for decisions...
+
+  ┌─ Decisions detected — 3 found ──────────────────────────────┐
+  │                                                              │
+  │  #  Decision                              Type               │
+  │  ─  ────────────────────────────────────  ────────────────   │
+  │  1  Use SQLite — no external infra        architecture       │
+  │  2  Skip OAuth in v1                      scope              │
+  │  3  CLI-first before web UI               approach           │
+  │                                                              │
+  └──────────────────────────────────────────────────────────────┘
+
+  Save these decisions? [Y/n]: y
+
+  ✓ 3 decision(s) saved.
+```
 
 ---
 
@@ -72,7 +124,7 @@ hl resume
 ```
 
 ### `hl context`
-Preview the context block that HL injects before each new AI prompt.
+Preview the context block that would be injected into your next AI prompt.
 
 ```bash
 hl context
@@ -107,6 +159,8 @@ hl/
 
 ## Decision types
 
+HL automatically classifies decisions into the following categories:
+
 | Icon | Type         | Meaning                          |
 |------|--------------|----------------------------------|
 | ◆    | architecture | Structural choices               |
@@ -137,12 +191,12 @@ Copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 
-| Variable                  | Default                      | Description                    |
-|---------------------------|------------------------------|--------------------------------|
-| `ANTHROPIC_API_KEY`       | —                            | Required in V2                 |
-| `HL_LLM_MODEL`            | claude-sonnet-4-20250514     | Model for detection            |
-| `HL_MAX_CONTEXT_DECISIONS`| 10                           | Max decisions per context block|
-| `HL_DEBUG`                | false                        | Debug output                   |
+| Variable                   | Default                  | Description                     |
+|----------------------------|--------------------------|---------------------------------|
+| `ANTHROPIC_API_KEY`        | —                        | Required in V2                  |
+| `HL_LLM_MODEL`             | claude-sonnet-4-20250514 | Model for detection             |
+| `HL_MAX_CONTEXT_DECISIONS` | 10                       | Max decisions per context block |
+| `HL_DEBUG`                 | false                    | Debug output                    |
 
 ---
 
@@ -150,7 +204,7 @@ cp .env.example .env
 
 - **Local-first.** Your decisions live in your repo, not in the cloud.
 - **Explicit over implicit.** Every decision is visible, typed, and reasoned.
-- **Minimal friction.** One command per session. No new habits to build.
+- **Minimal friction.** One lightweight checkpoint per session.
 - **Invisible in production.** The context block does its job silently.
 
 ---
